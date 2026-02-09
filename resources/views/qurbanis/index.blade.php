@@ -8,7 +8,12 @@
     <div class="col-md-6 text-md-end">
         @can('qurbani-create')
         <a class="btn btn-success btn-sm" href="{{ route('qurbanis.create') }}">
-            <i class="fa fa-plus"></i> 
+            <i class="fa fa-plus"></i>
+        </a>
+        @endcan
+        @can('view export')
+          <a href="{{ route('qurbani.export')}}" class="btn btn-success btn-sm">
+            <i class="fas fa-share-square"></i>
         </a>
         @endcan
     </div>
@@ -33,7 +38,7 @@
                 </td>
                 <td>
                         <label for="collected_by">Collected By:</label>
-                        <select name="collected_by" class="form-control">
+                        <select name="collected_by" class="form-select">
                             <option value="">Collected By</option>
                             @foreach($collectedUsers as $user)
                                 <option value="{{ $user->id }}" {{ request('collected_by') == $user->id ? 'selected' : '' }}>
@@ -60,71 +65,95 @@
 </form>
 
 
-@session('success')
-    <div class="alert alert-success" role="alert"> 
+{{-- @session('success')
+    <div class="alert alert-success" role="alert">
         {{ $value }}
     </div>
-@endsession
+@endsession --}}
 
 @php
-    function sortLink($label, $field) {
-        $currentSort = request('sort_by');
-        $currentOrder = request('order', 'desc');
-        $isCurrent = $currentSort == $field;
-        $newOrder = ($isCurrent && $currentOrder == 'asc') ? 'desc' : 'asc';
-        $icon = $isCurrent ? ($currentOrder == 'asc' ? '▲' : '▼') : '⇅';
+    // function sortLink($label, $field) {
+    //     $currentSort = request('sort_by');
+    //     $currentOrder = request('order', 'desc');
+    //     $isCurrent = $currentSort == $field;
+    //     $newOrder = ($isCurrent && $currentOrder == 'asc') ? 'desc' : 'asc';
+    //     $icon = $isCurrent ? ($currentOrder == 'asc' ? '▲' : '▼') : '⇅';
 
-        $query = request()->except('sort_by', 'order');
-        $query['sort_by'] = $field;
-        $query['order'] = $newOrder;
-        $url = request()->url() . '?' . http_build_query($query);
+    //     $query = request()->except('sort_by', 'order');
+    //     $query['sort_by'] = $field;
+    //     $query['order'] = $newOrder;
+    //     $url = request()->url() . '?' . http_build_query($query);
 
-        return "<a href='{$url}' style='color: inherit; text-decoration: none; font-weight: bold;'>{$label} <span>{$icon}</span></a>";
-    }
+    //     return "<a href='{$url}' style='color: inherit; text-decoration: none; font-weight: bold;'>{$label} <span>{$icon}</span></a>";
+    // }
 @endphp
 
 
-<table class="table table-bordered">
+<table class="table table-bordered nowrap">
     <tr>
         <th>No</th>
-        <th>{!! sortLink('Name', 'contact_name') !!}</th>
-        <th>{!! sortLink('Mobile', 'mobile') !!}</th>
-        <th>{!! sortLink('Hissa', 'hissa') !!}</th>
-        <th width="280px">Action</th>
+        <th>Name</th>
+        <th>Day</th>
+        <th>Mobile</th>
+        <th>Hissa</th>
+         @if ($year != 2024)
+        <th width="280px" class="nowrap">Action</th>
+        @endif
     </tr>
 
     @foreach ($qurbanis as $qurbani)
     <tr>
         <td>{{ ++$i }}</td>
         <td>{{ $qurbani->contact_name }}</td>
-        <td>{{ $qurbani->mobile }}
+        <td>{{ $qurbani->qurbani_days }}</td>
+        {{-- <td>{{ $qurbani->mobile }}
             @php
                 $pdfUrl = "https://sdi.mytasks.in/generate-pdf/" . base64_encode($qurbani->id);
                 $message = "Assalamualaikum\nQurbani Booking Confirmation From *SDI Branch Nasik*.\nReceipt No: " . $qurbani->id . "\nDownload your receipt PDF: " . $pdfUrl;
                 $whatsappUrl = "https://api.whatsapp.com/send/?phone=91" . $qurbani->mobile . "&text=" . urlencode($message);
-            @endphp 
-            <a href="{{ $whatsappUrl }}&amp;type=phone_number&amp;app_absent=0" target="_blank">Whatsapp</a>
+            @endphp
+        </td> --}}
+        <td>
+            <a href="tel:{{ $qurbani->mobile }}" class="btn btn-sm btn-outline-success">
+            <i class="fa fa-phone"></i> {{ $qurbani->mobile }}
+            </a>
         </td>
-       
-        <td>{{ $qurbani->details->sum('hissa') }}</td>
+
+       <td>{{ $year == 2025 ? $qurbani->details->sum('hissa') : $qurbani->details2024->sum('hissa') }}</td>
+
+        @if ($year != 2024)
         <td>
             <form action="{{ route('qurbanis.destroy',$qurbani->id) }}" method="POST">
-            <a class="btn btn-warning btn-sm" href="/generate-pdf/{{ base64_encode($qurbani->id) }}" target="_blank">
-    <i class="fa-regular fa-file-pdf"></i>
-</a>
+                <!--<a class="btn btn-warning btn-sm" href="/generate-pdf/{{ base64_encode($qurbani->id) }}" target="_blank">-->
+                <!--    <i class="fa-regular fa-file-pdf"></i>-->
+                <!--</a>-->
+                <a class="btn btn-warning btn-sm" href="/qurbani-pdf-url/{{ base64_encode($qurbani->id) }}" target="_blank">
+                    <i class="fa-regular fa-file-pdf"></i>
+                </a>
+                
+                <a class="btn btn-info btn-sm" href="{{ route('qurbanis.show',$qurbani->id) }}">
+                    <i class="fas fa-eye"></i>
+                </a>
+    @if(!in_array($qurbani->qurbani_days,[1,2,3,'III',NULL]) || auth()->id() == 7  || auth()->id() == 1)
 
-                <a class="btn btn-info btn-sm" href="{{ route('qurbanis.show',$qurbani->id) }}"><i class="fa-solid fa-list"></i></a>
+                <a class="btn btn-primary btn-sm" href="{{ route('qurbani.edit', $qurbani->id)}}"><i class="fas fa-edit"></i></a>
                 @csrf
                 @method('DELETE')
                 @can('qurbani-delete')
-                <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i></button>
+                <!--<button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i></button>-->
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this item?')">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
                 @endcan
+                
+                @endif
             </form>
         </td>
+        @endif
     </tr>
     @endforeach
 
-    
+
 </table>
 <div class="d-flex justify-content-center mt-3">
         {{ $qurbanis->links() }}

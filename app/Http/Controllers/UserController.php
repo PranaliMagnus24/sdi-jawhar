@@ -142,7 +142,7 @@ public function login(Request $request)
     {
         $this->validate($request, [
             'name' => 'required',
-            'login' => 'required|string|unique:users,email,'.$id.'|unique:users,mobile,'.$id,
+            //'login' => 'required|string|unique:users,email,'.$id.'|unique:users,mobile,'.$id,
             'password' => 'same:confirm-password',
             'roles' => 'required'
         ]);

@@ -1,141 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Faizane Sadique</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> {{ $general->title ?? '' }} - {{ $general->subtitle ?? '' }}</title>
     <style>
-         @font-face {
+    @font-face {
         font-family: "Noto Sans Devanagari";
-        src: url("{{ storage_path('fonts/NotoSansDevanagari-Regular.ttf') }}") format("truetype");
+        src: url("{{ public_path('storage/fonts/NotoSansDevanagari-Regular.ttf') }}") format("truetype");
     }
 
     body {
         font-family: "Noto Sans Devanagari", sans-serif;
+        margin: 0;
+        padding: 10px;
+        font-size: 12px;
     }
-        /* body {
-            font-family: Arial, sans-serif;
-            font-size: 10px;
-            margin: 5mm;
-            text-align: center;
-            position: relative;
-        } */
 
-        body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url('{{ public_path("background.jpeg") }}') no-repeat center center fixed;
-    background-size: cover; /* Ensures it fills the whole page */
-    opacity: 500; /* Adjust for watermark effect (0.1 to 0.3) */
-    z-index: -1;
+    body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        opacity: 0.5;
+        z-index: -1;
+    }
+
+    .styled-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 5px auto;
+        font-size: 0.9em;
+        border: 1px solid #000;
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .styled-table td, .styled-table th {
+        padding: 5px;
+        border: 1px solid #000;
+        word-wrap: break-word;
+    }
+
+    .styled-table th {
+        background-color: #1a6753;
+        color: white;
+    }
+
+    .curveHead {
+        border-radius: 10px;
+        background: #1a6753;
+        padding: 8px;
+        color: #ffffff;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .green-row {
+        background: #1a6753;
+        color: white;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .left-align {
+        text-align: left;
+        padding-left: 10px;
+    }
+
+    .qr-container img {
+        /*max-width: 110px;
+        width: 100%;*/
+        height: auto;
+        display: block;
+        margin: 0 auto;
+        object-fit: contain;
+    }
+
+    .image-container {
+        text-align: center;
+        margin-top: 5px;
+    }
+
+    .footer-image {
+        max-width: 100%;
+        height: auto;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .logo-container img {
+        width: 60px;
+        display: block;
+        margin: 0 auto;
+    }
+
+    .instagram-link a {
+        font-size: 12px;
+        font-weight: bold;
+        color: blue;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+        margin-top: 5px;
+    }
+
+    .btn-download {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
 }
 
+.btn-download:hover {
+    background-color: #218838;
+}
 
-        .styled-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 5px auto;
+    /* Responsive tweaks for smaller screens */
+    @media screen and (max-width: 600px) {
+        body {
             font-size: 10px;
-            border: 1px solid #000;
-            background: rgba(255, 255, 255, 0.85); /* Light background for readability */
-            border-radius: 10px;
-            text-align: center;
         }
 
-        .styled-table td, .styled-table th {
-            padding: 8px;
-            border: 1px solid #000;
-        }
-
-        .styled-table th {
-            background-color: #73AD21;
-            color: white;
-        }
-
-        .curveHead {
-            border-radius: 10px;
-            background: #73AD21;
-            padding: 8px;
-            color: #ffffff;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .green-row {
-            background: #73AD21;
-            color: white;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .left-align {
-            text-align: left;
-            padding-left: 10px;
-        }
-
-        .qr-container img {
-            width: 120px;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-        }
-
-        .image-container {
-            text-align: center;
-            margin-top: 2px;
+        .styled-table th, .styled-table td {
+            font-size: 10px;
+            padding: 4px;
         }
 
         .footer-image {
-            width: 60%;
-            display: block;
-            margin: 0 auto;
+            height: auto;
         }
 
-        .logo-container img {
-            width: 60px;
-            display: block;
-            margin: 0 auto;
+        .logo-container img,
+        .qr-container img {
+            width: 140px;
         }
 
         .instagram-link a {
             font-size: 10px;
-            font-weight: bold;
-            color: blue;
-            text-decoration: none;
         }
-        
+    }
     </style>
 </head>
 <body>
-
-    <table class="styled-table">
-        <!-- Logo Row (Centered Inside Table) -->
+    <table class="styled-table" style="border: 1px solid black;">
+        <!----------Heade logo------->
         <tr>
-            <td colspan="2" class="logo-container">
-                <img src="{{ $logoPath }}" alt="Logo">
+            <td colspan="2" style="padding: 10px;">
+                <div style="display: flex; align-items: center; justify-content: center; position: relative;">
+                    <!-- Logo (absolute left) -->
+                    <div style="position: absolute; left: 0;">
+                        <img src="{{ $logoPath }}" alt="Logo" style="height: 50px; width: 50px;">
+                    </div>
+                    <!-- Centered Content -->
+                    <div style="text-align: center; width: 100%;">
+                        <strong >{{ $general->title ?? '' }}</strong><br>
+                        <span style="font-size: 16px;">{{ $general->subtitle ?? '' }}</span><br>
+                        <span>{{ $general->address ?? '' }}</span><br>
+                        <span>{{ $general->contact ?? '' }}</span>
+                    </div>
+                </div>
             </td>
         </tr>
-
-        <!-- Header -->
-        <tr><td colspan="2" class="curveHead">{{ $general->title ?? '' }}</td></tr>
-        <tr><td colspan="2">{{ $general->subtitle ?? '' }}</td></tr>
-        <tr><td colspan="2"><small>{{ $general->address ?? '' }}</small></td></tr>
-        <tr><td colspan="2"><small>Mob: {{ $general->contact ?? '' }}</small></td></tr>
-
         <tr class="green-row">
-    <td colspan="3" class="centre-align" style="font-size: 10px;">
-        <strong>Ramadan Collection</strong> | <strong>Receipt No:</strong> 2025/{{ $collection->id }} 
-        @if($collection->receipt_book)
-            ({{ $collection->receipt_book }})
-        @endif
-    </td>
-</tr>
-
-
-<tr>
-<td colspan="3" class="left-align" style="font-size: 16px;">
+            <td colspan="2" style="font-size: 10px;">
+                <strong>Ramadan Collection</strong> | <strong>Receipt No:</strong> {{ date('Y') }}/{{ $collection->id }}
+                @if($collection->receipt_book)
+                    ({{ $collection->receipt_book }})
+                @endif
+            </td>
+        </tr>
+        <tr>
+<td colspan="2" class="left-align" style="font-size: 16px;">
 <strong>Name:</strong> <strong>{{ ucfirst($collection->name) }}</strong>
 
     </td>
@@ -157,60 +201,60 @@
     @if($collection->payment_mode == 'Online')
         <td class="left-align"><strong>Transaction ID:</strong> {{ $collection->transaction_id }}</td>
     @else
-        <td></td> 
+        <td></td>
     @endif
 </tr>
-        <tr class="green-row">
-    <td colspan="2" class="centre-align">
+        
+
+       <tr class="green-row">
+    <td class="centre-align" colspan="2">
         <strong>Payment Collected By:</strong> {{ Auth::user()->name ?? 'N/A' }}
     </td>
 </tr>
 
-<tr>
-        <td class="qr-container">
-            <strong>Scan to Pay:</strong><br>
-            <img src="{{ $qrPath }}" alt="QR Code">
-        </td>
-        <td class="bank-details left-align" style="font-size: 12px;">
+        <tr>
+            <td class="qr-container">
+                <img src="{{ $qrPath }}" alt="QR Code">
+            </td>
+            <td class="bank-details left-align" style="font-size: 12px;">
                 @if($general->bankdetail)
-                    <strong>Bank Details:</strong><br>
-                    <small>{!! nl2br(e($general->bankdetail)) !!}</small>
+                <strong>Bank Details:</strong><br>
+                <small>{!! nl2br(e(strtoupper($general->bankdetail))) !!}</small>
                 @endif
             </td>
-    </tr>
-
-    <!-- Footer Image -->
-    <tr>
-        <td colspan="2" class="image-container">
-            <img src="{{ $dailyPattiPath }}" alt="Daily Patti" class="footer-image">
-        </td>
-    </tr>
-
-    <!-- Instagram Link -->
-    <tr>
-        <td colspan="2" class="instagram-link">
-            <a href="https://instagram.com/sdipronasik?igshid=k49z97epdxrn" target="_blank">
-                Click Here to Follow Us On Instagram
+        </tr>
+        <!-- Footer Image -->
+        <tr>
+            <td colspan="2" class="image-container">
+                <img src="{{ $dailyPattiPath }}" alt="Footer Image" class="footer-image">
+            </td>
+        </tr>
+        <!-- Instagram Link -->
+         <tr>
+            <td colspan="2" class="instagram-link">
+                <a href="https://youtube.com/@madarsaanwarerazajawhar5477?si=t5gYI557wy5Zv17L" target="_blank">
+                Click Here to subscribe our Youtube Channel
             </a>
-        </td>
-    </tr>
-
-   <!-- Notes -->
-   @if($general->note)
+            </td>
+        </tr>
+        <!-- Notes -->
+        @if($general->note)
         <tr class="green-row">
             <td colspan="2">
-                <strong>Note:</strong> {{ $general->note }}
+                {{ $general->note }}
             </td>
         </tr>
         @endif
-
         @if($general->footer)
         <tr class="green-row">
             <td colspan="2">{{ $general->footer }}</td>
         </tr>
         @endif
-
     </table>
-
+    <br />
+    <a href="{{ $pdfUrl }}" class="btn-download" target="_blank">
+    Download Receipt
+</a>
+    <!--<a href="{{ $pdfUrl }}" target="_blank" class="primary btn">Click here to download receipt</a>-->
 </body>
 </html>

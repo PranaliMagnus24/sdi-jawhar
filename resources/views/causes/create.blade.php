@@ -3,7 +3,7 @@
 @section('content')
 <div class="container mt-3">
     <h1 class="text-right mb-1">Create</h1>
-    <a href="{{ route('causeslist') }}" class="btn btn-secondary text-right ms-2"><i class="fa fa-arrow-left"></i> Back</a>
+    <a href="{{ route('causes.causeslist') }}" class="btn btn-secondary text-right ms-2"><i class="fa fa-arrow-left"></i> Back</a>
 
     <div class="card mt-3">
         <div class="card-body">
@@ -32,7 +32,7 @@
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-            
+
 
                 <div class="row">
                 <div class="col-md-6 mb-3">
@@ -43,7 +43,7 @@
                     @enderror
                 </div>
 
-               
+
                   <div class="col-md-6 mb-3">
                     <label for="category" class="form-label">Category<span style="color: red;">*</span></label>
                     <select name="category" class="form-control @error('category') is-invalid @enderror">

@@ -17,6 +17,11 @@ use App\Http\Controllers\SettingController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\CausesController;
 use App\Http\Controllers\FaqController;
+use App\Http\Controllers\QurbaniDaysController;
+use Illuminate\Support\Facades\Artisan;
+use App\Mail\QurbaniFinalListMail;
+use Illuminate\Support\Facades\Mail;
+use App\Jobs\SendQurbaniFinalListEmail;
 Auth::routes();
 
 
@@ -61,7 +66,19 @@ Route::group(['middleware' => ['auth']], function() {
     Route::resource('products', ProductController::class);
     Route::resource('qurbanis', QurbaniController::class);
     Route::get('collection', [RamzanCollectionController::class, 'index'])->name('collectionlist');
-    Route::get('/final-list/{id}', [PDFController::class, 'generatefinallist'])->name('pdf.finallist');        
+
+    Route::get('/final-list/{id}', [PDFController::class, 'generatefinallist'])->name('pdf.finallist');
+    Route::post('/send-email/{day}', function ($day) {
+    $user = auth()->user();
+    if ($user && $user->hasRole('Admin')) {
+        SendQurbaniFinalListEmail::dispatch($user->email, $day);
+    }
+    return redirect()->back()->with('success', 'Email has been sent!');
+});
+    ///////Final list day1 and day2
+    Route::get('/finalList/{day}', [PDFController::class, 'finalListView']);
+
+
     Route::get('form', [IjtemaFormController::class, 'index'])->name('formlist');
     Route::get('/razorpay/{id}', [QurbaniController::class, 'initiateRazorpayPayment'])->name('razorpay');
     Route::get('/export-collections', [RamzanCollectionController::class, 'export'])->name('export.collections');
@@ -80,28 +97,37 @@ Route::post('collection/store', [RamzanCollectionController::class, 'store'])->n
 Route::get('collection/{id}/edit', [RamzanCollectionController::class, 'edit'])->name('collection.edit');
 Route::put('collection/upd/{id}', [RamzanCollectionController::class, 'update'])->name('collection.update');
 Route::delete('collection/del/{id}', [RamzanCollectionController::class, 'destroy'])->name('collection.destroy');
-Route::get('/collection/view/{id}', [RamzanCollectionController::class, 'view'])->name('collection.view');
+
 Route::get('/collection/show/{id}', [RamzanCollectionController::class, 'show'])->name('collection.show');
+Route::get('/collection/thankyou', [RamzanCollectionController::class, 'Thankyou'])->name('collection.thankyou');
 
-});   
-Route::get('/generate-pdf/{qurbani_id}', [PDFController::class, 'generatePDF'])->name('pdf.generate');
 
-Route::get('/qurbani/pdf/{id}', [QurbaniController::class, 'generate'])->name('qurbani.pdf');
+
+///////////Qurbani Controller
 Route::post('/whatsapp', [QurbaniController::class, 'WhatsAppMessage'])->name('whatsapp');
 Route::get('qurbanis/archive/2024', [QurbaniController::class, 'archive2024'])->name('qurbanis.archive2024');
 
 Route::post('/qurbani/approve/{id}', [QurbaniController::class, 'approveGuest'])->name('qurbani.approve');
-
-
-
-    Route::get('/qurbani/guest-submissions', [QurbaniController::class, 'guestSubmissions'])
+Route::get('/qurbani/guest-submissions', [QurbaniController::class, 'guestSubmissions'])
     ->name('qurbani.guest.submissions')
     ->middleware('permission:qurbani-list');
+Route::get('/qurbani/{id}/edit', [QurbaniController::class, 'edit'])->name('qurbani.edit');
+Route::put('/qurbani/{id}/update', [QurbaniController::class, 'update'])->name('qurbani.update');
 
-    Route::get('/qurbani/pdf/{id}', [QurbaniController::class, 'generatePDF'])->name('qurbani.generate.pdf');
+Route::get('/autosuggest', [QurbaniController::class, 'suggest'])->name('qurbani.autosuggest');
+
+Route::get('/qurbani-export', [QurbaniController::class, 'exportQurbani'])->name('qurbani.export');
+Route::get('/thank-you', [QurbaniController::class, 'thankYou'])->name('qurbani.thanyou');
 
 
-//category
+Route::get('/qurbani-dashboard', [QurbaniController::class, 'qurbaniDashboard'])->name('qurbani.dashboard');
+
+
+//////Qurbani Days Controller
+Route::get('days', [QurbaniDaysController::class, 'qurbaniDay'])->name('qurbani.days');
+Route::post('days', [QurbaniDaysController::class, 'qurbaniDayStore'])->name('qurbani.days.store');
+
+//Donation Category Controller
 Route::get('category', [DonationCategoryController::class, 'index'])->name('categorylist');
 Route::get('category/create', [DonationCategoryController::class, 'create'])->name('category.create');
 Route::post('category', [DonationCategoryController::class, 'store'])->name('category.store');
@@ -109,7 +135,8 @@ Route::get('category/{id}/edit', [DonationCategoryController::class, 'edit'])->n
 Route::put('category/{id}', [DonationCategoryController::class, 'update'])->name('category.update');
 Route::delete('category/{id}', [DonationCategoryController::class, 'destroy'])->name('category.destroy');
 
-Route::get('/collection/pdf/{id}', [RamzanCollectionController::class, 'generatePDF'])->name('collection.pdf');
+///////////////Ramzan Collection Controller
+
 Route::post('/send-whatsapp', [RamzanCollectionController::class, 'sendWhatsAppMessage'])->name('send.whatsapp');
 
 Route::get('/clear-caches', [CacheController::class, 'clearAllCaches'])->name('clear.caches');
@@ -120,17 +147,9 @@ Route::post('/settings/whatsapp', [SettingController::class, 'updateWhatsappSett
 Route::post('/settings/sms', [SettingController::class, 'updatesmsSettings'])->name('update.sms.settings');
 Route::post('/settings/payment', [SettingController::class, 'updatepaymentSettings'])->name('update.payment.settings');
 
-//register
-Route::get('/createqurbani', [RegisterController::class, 'createqurbani'])->name('create.qurbani');
-Route::post('formqurbani', [RegisterController::class, 'storequrbani'])->name('formqurbani.store');
-Route::get('/thankyou-qurbani', [RegisterController::class, 'thankyouqurbani'])->name('thankyouqurbani');
-Route::get('/qurbani-list', [RegisterController::class, 'qurbaniList'])->name('guest.qurbani.list');
-Route::post('/qurbani/{id}/approve', [RegisterController::class, 'approveQurbani'])->name('qurbani.approve');
-Route::get('/admin/qurbani/guest-approve/{id}', [QurbaniController::class, 'approveGuest'])->name('admin.qurbani.guest.approve');
-
 //causes
 
-Route::get('/causeslist', [CausesController::class, 'index'])->name('causeslist');
+Route::get('/causeslist', [CausesController::class, 'index'])->name('causes.causeslist');
 Route::get('/causes/create', [CausesController::class, 'create'])->name('causes.create');
 Route::post('/causes/store', [CausesController::class, 'store'])->name('causes.store');
 Route::get('/causes/edit/{id}', [CausesController::class, 'edit'])->name('causes.edit');
@@ -146,3 +165,34 @@ Route::get('/faq/edit/{id}', [FaqController::class, 'edit'])->name('faq.edit');
 Route::put('/faq/update/{id}', [FaqController::class, 'update'])->name('faq.update');
 Route::delete('/faq/delete/{id}', [FaqController::class, 'destroy'])->name('faq.delete');
 Route::get('/faq/show/{id}', [FaqController::class, 'show'])->name('faq.show');
+
+
+
+});
+
+Route::get('/generate-pdf/{qurbani_id}', [QurbaniController::class, 'generatePDF'])->name('pdf.generate');
+Route::get('/qurbani-pdf-url/{qurbani_id}', [QurbaniController::class, 'newpdfUrl'])->name('qurbani.pdf.url');
+
+
+//////Ramzan View
+Route::get('/collection/view/{id}', [RamzanCollectionController::class, 'view'])->name('collection.view');
+Route::get('/collection/pdf/{id}', [RamzanCollectionController::class, 'generatePDF'])->name('collection.pdf');
+
+
+//register
+Route::get('/createqurbani', [RegisterController::class, 'createqurbani'])->name('create.qurbani');
+Route::post('formqurbani', [RegisterController::class, 'storequrbani'])->name('formqurbani.store');
+Route::get('/thankyou-qurbani', [RegisterController::class, 'thankyouqurbani'])->name('thankyouqurbani');
+Route::get('/qurbani-list', [RegisterController::class, 'qurbaniList'])->name('guest.qurbani.list');
+Route::post('/qurbani/{id}/approve', [RegisterController::class, 'approveQurbani'])->name('qurbani.approve');
+Route::get('/admin/qurbani/guest-approve/{id}', [QurbaniController::class, 'approveGuest'])->name('admin.qurbani.guest.approve');
+
+
+
+
+Route::get('/start-queue-until-empty', function () {
+    Artisan::call('queue:work', [
+        '--stop-when-empty' => true
+    ]);
+    return 'Worker started (until queue is empty)';
+});

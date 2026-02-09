@@ -28,7 +28,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/qurbanis';
     public function username()
     {
         return 'mobile'; // Change this to use the mobile field instead of email
@@ -46,6 +46,7 @@ class LoginController extends Controller
 
         if ($user && Hash::check($request->password, $user->password)) {
             Auth::login($user);
+            //return redirect()->intended('/qurbani-dashboard');
             return redirect()->intended('/home');
         }
 

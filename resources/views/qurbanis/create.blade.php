@@ -1,7 +1,6 @@
 @extends('layouts.app')
-
 @section('content')
-<div class="row">
+<div class="row mb-3">
     <div class="col-lg-12 margin-tb">
         <div class="pull-left">
             <h2>Add New Qurbani</h2>
@@ -14,211 +13,241 @@
     </div>
 </div>
 
-<form action="{{ route('qurbanis.store') }}" method="POST">
+<!-- Full Screen Loader (Center Positioned) -->
+<div id="formLoader" class="d-none position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-white" style="opacity: 0.7; z-index: 9999;">
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<form action="{{ route('qurbanis.store') }}" method="POST" enctype="multipart/form-data" onsubmit="return disableSubmitButton();">
     @csrf
-    <div class="row">
-        <div class="col-md-12">
-            <div class="form-group">
-                <strong>Name:<span style="color: red;">*</span></strong>
-                <input type="text" name="contact_name" class="form-control @error('name') is-invalid @enderror" value="{{ old('contact_name') }}" placeholder="Name" >
-            </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for=""><strong>Name: <span style="color: red;">*</span></strong></label>
+                <input type="text" name="contact_name" class="form-control @error('name') is-invalid @enderror" value="{{ old('contact_name') }}" placeholder="Name">
             @error('contact_name')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
-        </div>
-
-        <div class="row">
-            <div class="col-md-6">
-                <strong>Mobile:<span style="color: red;">*</span></strong>
+            </div>
+            <div class="col-md-3">
+                <label for=""><strong>Mobile: <span style="color: red;">*</span></strong></label>
                 <input type="text" name="mobile" maxlength="10" value="{{ old('mobile') }}" class="form-control @error('mobile') is-invalid @enderror" placeholder="Mobile" >
                 @error('mobile')
                     <span class="text-danger">{{ $message }}</span>
                 @enderror
             </div>
-            <div class="col-md-6 mb-3">
-                <div class="form-group">
-                    <strong>Receipt Book:</strong>
-                    <input type="text" name="receipt_book" class="form-control @error('receipt_book') is-invalid @enderror"
-                        value="{{ old('receipt_book', isset($qurbani) ? $qurbani->receipt_book : '') }}" 
-                        placeholder="Enter Receipt Number (Optional)">
-                    @error('receipt_book')
-                        <span class="text-danger">{{ $message }}</span>
-                    @enderror
-                </div>
-            </div>
-        </div>
-
-        <div class="container pt-4">
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th class="text-center">Aqiqah</th>
-                            <th class="text-center">Name</th>
-                            <th class="text-center">Gender</th>
-                            <th class="text-center">Hissa</th>
-                            <th class="text-center">Remove</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tbody">
-                        <tr class="rowClass">
-                            <td class="text-center">
-                                <input type="hidden" class="aqiqah-input" name="aqiqah[]" value="0"> 
-                                <input type="checkbox" class="aqiqah-check">
-                            </td>
-                            <td class="text-center">
-                                <input type="text" name="name[]" class="form-control name-input" placeholder="Name" >
-                            </td>
-                            <td class="text-center">
-                                <select name="gender[]" class="form-control aqiqah-select" style="display:none;">
-                                    <option value="">Select</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                </select>
-                            </td>
-                            <td class="text-center">
-                                <input type="number" name="hissa[]" class="form-control hissa-input" value="1"  readonly>
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-danger remove" type="button">Remove</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <button class="btn btn-md btn-primary" id="addBtn" type="button">Add New Row</button>
-        </div>
-
-        <div class="row pt-3">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <strong>Total Amount:</strong>
-                    ₹ <span id="txtamount">0</span>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <strong>Payment Method:<span style="color: red;">*</span></strong>
-                <select name="payment_type" id="payment_method" class="form-control" onchange="togglePaymentDetails(this);">
-    <option value="">Payment Method</option>
-    <option value="Cash">Cash</option>
-    <option value="RazorPay">Online</option>
-</select>
-
-                @error('payment_type')
+            <div class="col-md-3">
+                <label for=""><strong>Alternative Mobile</strong></label>
+                <input type="text" name="alternative_mobile" maxlength="10" value="{{ old('alternative_mobile') }}" class="form-control @error('alternative_mobile') is-invalid @enderror" placeholder="Alternative Mobile" >
+                @error('alternative_mobile')
                     <span class="text-danger">{{ $message }}</span>
                 @enderror
             </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for=""><strong>Receipt Book:</strong></label>
+            <input type="text" name="receipt_book" class="form-control @error('receipt_book') is-invalid @enderror" value="{{ old('receipt_book', isset($qurbani) ? $qurbani->receipt_book : '') }}" placeholder="Enter Receipt Number (Optional)">
+            @error('receipt_book')
+            <span class="text-danger">{{ $message }}</span>
+            @enderror
         </div>
+        <div class="col-md-6">
+            <label for=""><strong>Select Day:  <span style="color: red;">*</span></strong></label>
+            <select name="qurbani_days" id="" class="form-select">
+                <option value="">--Select Day--</option>
+                {{-- @php
+                echo now()->setTimezone('Asia/Kolkata');
+                echo('2025-06-06 23:59:59' ."<=" . date('Y-m-d H:i:s'));
+                @endphp --}}
 
-        {{-- Transaction ID - Show only if RazorPay selected --}}
-        <div class="form-group mt-2" id="razorpay-details" style="display: none;">
-            <label for="transaction_number"><strong>Transaction ID:<span style="color: red;">*</span></strong></label>
-            <input type="text" name="transaction_number" id="transaction_number"
-                class="form-control @error('transaction_number') is-invalid @enderror"
-                placeholder="Enter Transaction ID">
-            @error('transaction_number')
+           @if(now()->setTimezone('Asia/Kolkata') <= '2025-06-06 23:59:59' || auth()->id() == 7  || auth()->id() == 1)
+            <option value="1" {{ old('qurbani_days') == '1' ? 'selected' : '' }}>Day 1</option>
+           @endif
+            
+            @if(now()->setTimezone('Asia/Kolkata') <= '2025-06-07 23:59:59' || auth()->id() == 7  || auth()->id() == 1)
+                <option value="2" {{ old('qurbani_days') == '2' ? 'selected' : '' }}>Day 2</option>
+            @endif
+            
+            @if(now()->setTimezone('Asia/Kolkata') <= '2025-06-08 23:59:59' || auth()->id() == 32 || auth()->id() == 7  || auth()->id() == 1)
+                <option value="3" {{ old('qurbani_days') == '3' ? 'selected' : '' }}>Day 3</option>
+            @endif
+            @if(now()->setTimezone('Asia/Kolkata') <= '2025-06-09 13:59:59' || auth()->id() == 7  || auth()->id() == 1)
+                <option value="III" {{ old('qurbani_days') == 'III' ? 'selected' : '' }}>Day III</option>
+            @endif
+            </select>
+             @error('qurbani_days')
                 <span class="text-danger">{{ $message }}</span>
             @enderror
         </div>
 
-        <div class="col-md-12 text-center">
-            <button type="submit" class="btn btn-primary btn-sm mb-3 mt-2">
-                <i class="fa-solid fa-floppy-disk"></i> Submit
-            </button>
-        </div>
     </div>
-</form>
+    <div class="container mb-3">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="text-center">Aqiqah</th>
+                        <th class="text-center">Name</th>
+                        <th class="text-center">Gender</th>
+                        <!--<th class="text-center">Hissa</th>-->
+                        <th class="text-center">Remove</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+                    @if (old('name'))
+                    @foreach (old('name') as $index => $name)
+                        @php
+                            $isHuzur = old('huzur')[$index] ?? null;
+                        @endphp
+                        @if ($isHuzur)
+                        <tr class="rowClass huzur-row">
+                            <td class="text-center">
+                                <input type="hidden" name="aqiqah[]" value="">
+                            </td>
+                            <td class="text-center" style="width: 448px;">
+                                <input type="text" name="name" class="form-control" value="HAZRAT MOHAMMAD SALLALLAHU ALAIHI WASALLAM" readonly>
+                                <input type="hidden" name="hissa[]" class="form-control" value="1" readonly>
+                            </td>
+                            <td class="text-center">
+                                <select name="gender[]" class="form-select" style="display:none;">
+                                    <option value="">Select</option>
+                                </select>
 
+                            </td>
+                            <td class="text-center">
+                                <input type="hidden" name="huzur[]" value="1">
+
+                                <!--<i class="fa-solid fa-trash"></i>-->
+                                <a class="btn btn-danger remove" type="button"><i class="fa-solid fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        @else
+                        <tr class="rowClass">
+                            <td class="text-center">
+                                <input type="hidden" class="aqiqah-input" name="aqiqah[]" value="{{ old('aqiqah')[$index] ?? 0 }}">
+                                <input type="checkbox" class="aqiqah-check" {{ (old('aqiqah')[$index] ?? 0) == 1 ? 'checked' : '' }}>
+                            </td>
+                            <td class="text-center">
+                                <input type="text" name="name[]" class="form-control name-input" value="{{ $name }}" placeholder="Name">
+                                <input type="hidden" name="hissa[]" class="form-control hissa-input" value="{{ old('hissa')[$index] ?? 1 }}" readonly>
+                            </td>
+                            <td class="text-center">
+                                <select name="gender[]" class="form-select aqiqah-select" style="{{ (old('aqiqah')[$index] ?? 0) == 1 ? '' : 'display:none;' }}">
+                                    <option value="">Select</option>
+                                    <option value="Male" {{ old('gender')[$index] == 'Male' ? 'selected' : '' }}>Male</option>
+                                    <option value="Female" {{ old('gender')[$index] == 'Female' ? 'selected' : '' }}>Female</option>
+                                </select>
+                                 @error('gender.*')
+                                 <span class="text-danger">{{ $message }}</span>
+                                 @enderror
+                            </td>
+                            <td class="text-center">
+                                <input type="hidden" name="huzur[]" value="0">
+                                <!--<button class="btn btn-danger remove" type="button">Remove</button>-->
+                                <a class="btn btn-danger remove" type="button"><i class="fa-solid fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        @endif
+                    @endforeach
+                @else
+                {{-- default row --}}
+                <tr class="rowClass">
+                    <td class="text-center">
+                        <input type="hidden" class="aqiqah-input" name="aqiqah[]" value="0">
+                        <input type="checkbox" class="aqiqah-check">
+                    </td>
+                    <!--<td class="text-center">-->
+                    <!--    <input type="text" name="name[]" class="form-control name-input" placeholder="Name">-->
+                    <!--</td>-->
+                    <td class="text-center" style="min-width: 150px;">
+                        <input type="text" name="name[]" class="form-control w-100 name-input" placeholder="Name">
+                        <input type="hidden" name="hissa[]" class="form-control hissa-input" value="1" readonly>
+                    </td>
+                    <td class="text-center">
+                        <select name="gender[]" class="form-select aqiqah-select" style="display:none;">
+                            <option value="">Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </td>
+                    <td class="text-center">
+                        <input type="hidden" name="huzur[]" value="0">
+                        <!--<button class="btn btn-danger remove" type="button">Remove</button>-->
+                        <a class="btn btn-danger remove" type="button"><i class="fa-solid fa-trash"></i></a>
+                    </td>
+                </tr>
+                @endif
+            </tbody>
+        </table>
+    </div>
+    <button class="btn btn-md btn-primary" id="addBtn" type="button">Add New Row</button>
+    <button class="btn btn-md btn-primary" id="addBtnHuzur" type="button">Add Huzur Name</button>
+</div>
+<div class="row mb-3">
+    <div class="col-md-2">
+        <label for="" class="form-lable"><strong>Total Amount</strong></label>
+        <input type="text" class="form-control" name="total_amount" id="txtamount" readonly>
+    </div>
+    <div class="col-md-2">
+        <strong>Payment Method:<span style="color: red;">*</span></strong>
+        <select name="payment_type" id="payment_method" class="form-select" onchange="togglePaymentDetails(this);">
+            <option value="">Payment Method</option>
+            <option value="Cash" {{ old('payment_type') == 'Cash' ? 'selected' : '' }}>Cash</option>
+            <option value="RazorPay" {{ old('payment_type') == 'RazorPay' ? 'selected' : '' }}>Online</option>
+        </select>
+        @error('payment_type')
+        <span class="text-danger">{{ $message }}</span>
+        @enderror
+    </div>
+    <div class="col-md-3" id="razorpay-details" style="display: none;">
+        <label for="transaction_number"><strong>Transaction ID:<span style="color: red;">*</span></strong></label>
+        <input type="text" name="transaction_number" id="transaction_number" class="form-control @error('transaction_number') is-invalid @enderror" placeholder="Enter Transaction ID">
+        @error('transaction_number')
+        <span class="text-danger">{{ $message }}</span>
+        @enderror
+    </div>
+    {{-- <div class="col-md-3 attachement" style="display: none;" id="attachement">
+        <label for="" class="form-label"><strong>Upload attachement</strong></label>
+        <input type="file" class="form-control" name="upload_payment">
+    </div> --}}
+</div>
+<div class="col-md-12 text-center">
+    <button type="submit" class="btn btn-success btn-sm" id="saveButton">
+        <span id="buttonText"><i class="fa-solid fa-floppy-disk"></i> Submit</span>
+        <span id="buttonLoader" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+    </button>
+</div>
+</div>
+</form>
+@endsection
 {{-- Scripts --}}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
-$(document).ready(function () {
-    let totalAmount = 0;
+//     $(document).ready(function () {
+//     const now = new Date();
+//     const currentHour = now.getHours();
+//     const currentMinutes = now.getMinutes();
 
-    function calculateTotal() {
-        totalAmount = 0;
+//     if (currentHour > 23 || (currentHour === 23 && currentMinutes > 59)) {
+//         $('#qurbani_days option[value="1"]').remove();
+//     }
+// });
 
-        $(".rowClass").each(function () {
-            let isAqiqah = $(this).find(".aqiqah-check").is(":checked");
-            let selectedGender = $(this).find(".aqiqah-select").val();
-            let hissaAmount = 1500;
-            let hissaCount = 1;
-            let name = $(this).find(".name-input").val().trim();
 
-            if (name !== "") {
-                if (isAqiqah) {
-                    hissaCount = (selectedGender === "Male") ? 2 : 1;
-                }
 
-                $(this).find(".hissa-input").val(hissaCount);
-                totalAmount += hissaCount * hissaAmount;
-            }
-        });
-
-        $("#txtamount").text(totalAmount.toFixed(2));
+    const autosuggestUrl = '{{ route('qurbani.autosuggest')}}';
+    ////Loader logic
+    function disableSubmitButton() {
+        var saveButton = document.getElementById("saveButton");
+        var formLoader = document.getElementById("formLoader");
+        if (saveButton.disabled) {
+            return false;
+        }
+        saveButton.disabled = true;
+        formLoader.classList.remove("d-none");
+        return true;
     }
-
-    $("#addBtn").click(function () {
-        let newRow = `
-        <tr class="rowClass">
-            <td class="text-center">
-                <input type="hidden" class="aqiqah-input" name="aqiqah[]" value="0">
-                <input type="checkbox" class="aqiqah-check">
-            </td>
-            <td class="text-center">
-                <input type="text" name="name[]" class="form-control name-input" placeholder="Name">
-            </td>
-            <td class="text-center">
-                <select name="gender[]" class="form-control aqiqah-select" style="display:none;">
-                    <option value="">Select</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                </select>
-            </td>
-            <td class="text-center">
-                <input type="number" name="hissa[]" class="form-control hissa-input" value="1" readonly>
-            </td>
-            <td class="text-center">
-                <button class="btn btn-danger remove" type="button">Remove</button>
-            </td>
-        </tr>`;
-        $('#tbody').append(newRow);
-    });
-
-    $(document).on("input", ".name-input", calculateTotal);
-    $(document).on("change", ".aqiqah-select", calculateTotal);
-
-    $(document).on("change", ".aqiqah-check", function () {
-        let row = $(this).closest("tr");
-        let genderSelect = row.find(".aqiqah-select");
-        let hiddenAqiqahInput = row.find(".aqiqah-input");
-
-        if ($(this).is(":checked")) {
-            hiddenAqiqahInput.val("1");
-            genderSelect.show();
-        } else {
-            hiddenAqiqahInput.val("0");
-            genderSelect.hide().val("");
-        }
-        calculateTotal();
-    });
-
-    $(document).on("click", ".remove", function () {
-        if ($(".rowClass").length > 1) {
-            $(this).closest("tr").remove();
-        }
-        calculateTotal();
-    });
-
-    window.togglePaymentDetails = function (select) {
-        $("#razorpay-details").toggle(select.value === 'RazorPay');
-    };
-
-    // Initialize visibility on page load
-    togglePaymentDetails(document.getElementById('payment_method'));
-
-    calculateTotal();
-});
 </script>
-@endsection
+

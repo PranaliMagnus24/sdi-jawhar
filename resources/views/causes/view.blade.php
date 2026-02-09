@@ -3,7 +3,7 @@
 @section('content')
 <div class="container mt-4">
     <div class="d-flex align-items-center justify-content-between mt-1 mb-4">
-        <a href="{{ route('causeslist') }}" class="btn btn-sm btn-outline-secondary me-1">
+        <a href="{{ route('causes.causeslist') }}" class="btn btn-sm btn-outline-secondary me-1">
             <i class="fas fa-arrow-left"></i> Back
         </a>
         <div class="flex-grow-1 text-center">

@@ -11,10 +11,17 @@ class QurbaniHisse extends Model
 
     /**
      * The attributes that are mass assignable.
-     *  
+     *
      * @var array
      */
+    protected $table = "qurbani_hisses";
     protected $fillable = [
-        'user_id', 'qurbani_id', 'name', 'aqiqah', 'gender', 'hissa',
+        'user_id', 'qurbani_id', 'name', 'aqiqah', 'gender', 'hissa','paigambar_name',
     ];
+
+    public function qurbani()
+{
+    return $this->belongsTo(Qurbani::class);
+}
+
 }
