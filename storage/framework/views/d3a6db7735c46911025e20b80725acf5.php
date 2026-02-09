@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <style>
         .btn-sm {
             width: 10px;
@@ -17,10 +15,10 @@
             </div>
             <div class="col-md-6 text-center text-md-end mt-2 mt-md-0">
                 <div class="d-flex justify-content-end">
-                    <a class="btn btn-success btn-small me-2" href="{{ route('collection.create') }}">
+                    <a class="btn btn-success btn-small me-2" href="<?php echo e(route('collection.create')); ?>">
                         <i class="fa fa-plus"></i>
                     </a>
-                    <a href="{{ route('export.collections', request()->all()) }}" class="btn btn-success btn-small">
+                    <a href="<?php echo e(route('export.collections', request()->all())); ?>" class="btn btn-success btn-small">
                         <i class="fas fa-share-square"></i>
                     </a>
                 </div>
@@ -28,34 +26,35 @@
         </div>
 
         <!-- Filter Form -->
-        <form method="GET" action="{{ route('collectionlist') }}">
+        <form method="GET" action="<?php echo e(route('collectionlist')); ?>">
             <div class="table-responsive">
                 <table class="table table-bordered">
                     <tr>
                         <td>
                             <label for="name">Name:</label>
-                            <input type="text" id="name" name="name" value="{{ request('name') }}" class="form-control"
+                            <input type="text" id="name" name="name" value="<?php echo e(request('name')); ?>" class="form-control"
                                 placeholder="Name">
                         </td>
                         <td>
                             <label for="contact">Contact:</label>
-                            <input type="text" id="contact" name="contact" value="{{ request('contact') }}"
+                            <input type="text" id="contact" name="contact" value="<?php echo e(request('contact')); ?>"
                                 class="form-control" placeholder="Contact">
                         </td>
                         <td>
                             <label for="receipt_book">Receipt Number:</label>
-                            <input type="text" id="receipt_book" name="receipt_book" value="{{ request('receipt_book') }}"
+                            <input type="text" id="receipt_book" name="receipt_book" value="<?php echo e(request('receipt_book')); ?>"
                                 class="form-control" placeholder="Receipt Number">
                         </td>
                         <td>
                             <label for="donationcategory">Category:</label>
                             <select name="donationcategory" class="form-control">
                                 <option value="">Select Category</option>
-                                @foreach($categories as $category)
-                                    <option value="{{ $category->name }}" {{ request('donationcategory') == $category->name ? 'selected' : '' }}>
-                                        {{ $category->name }}
+                                <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($category->name); ?>" <?php echo e(request('donationcategory') == $category->name ? 'selected' : ''); ?>>
+                                        <?php echo e($category->name); ?>
+
                                     </option>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </td>
                         <!-- Payment Mode Filter -->
@@ -63,10 +62,8 @@
                             <label for="payment_mode">Payment Mode:</label>
                             <select name="payment_mode" class="form-control">
                                 <option value="">Select Payment Mode</option>
-                                <option value="Cash" {{ request('payment_mode') == 'Cash' ? 'selected' : '' }}>Cash</option>
-                                <option value="Online" {{ request('payment_mode') == 'Online' ? 'selected' : '' }}>Online
-                                </option>
-                                 <option value="Unpaid" {{ request('payment_mode') == 'Unpaid' ? 'selected' : '' }}>Unpaid
+                                <option value="Cash" <?php echo e(request('payment_mode') == 'Cash' ? 'selected' : ''); ?>>Cash</option>
+                                <option value="Online" <?php echo e(request('payment_mode') == 'Online' ? 'selected' : ''); ?>>Online
                                 </option>
                             </select>
                         </td>
@@ -74,25 +71,26 @@
                             <label for="collected_by">Collected By:</label>
                             <select name="collected_by" class="form-control">
                                 <option value="">Collected By</option>
-                                @foreach($collectedUsers as $user)
-                                    <option value="{{ $user->id }}" {{ request('collected_by') == $user->id ? 'selected' : '' }}>
-                                        {{ $user->name }}
+                                <?php $__currentLoopData = $collectedUsers; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($user->id); ?>" <?php echo e(request('collected_by') == $user->id ? 'selected' : ''); ?>>
+                                        <?php echo e($user->name); ?>
+
                                     </option>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </td>
                         <td class="text-nowrap">
                             <button type="submit" class="btn btn-primary mt-4">Filter</button>
-                            <a href="{{ route('collectionlist') }}" class="btn btn-secondary mt-4 ms-2">Reset</a>
+                            <a href="<?php echo e(route('collectionlist')); ?>" class="btn btn-secondary mt-4 ms-2">Reset</a>
                         </td>
                     </tr>
                 </table>
             </div>
         </form>
 
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+        <?php if(session('success')): ?>
+            <div class="alert alert-success"><?php echo e(session('success')); ?></div>
+        <?php endif; ?>
 
         <!-- Collection List -->
         <div class="table-responsive">
@@ -105,9 +103,9 @@
                         <th>
                             Date
                             <a
-                                href="{{ route('collectionlist', ['sort_by' => 'date', 'sort_order' => request('sort_order') === 'asc' && request('sort_by') === 'date' ? 'desc' : 'asc'] + request()->except('page')) }}">
+                                href="<?php echo e(route('collectionlist', ['sort_by' => 'date', 'sort_order' => request('sort_order') === 'asc' && request('sort_by') === 'date' ? 'desc' : 'asc'] + request()->except('page'))); ?>">
                                 <i
-                                    class="fa fa-sort{{ request('sort_by') === 'date' ? '-' . request('sort_order') : '' }}"></i>
+                                    class="fa fa-sort<?php echo e(request('sort_by') === 'date' ? '-' . request('sort_order') : ''); ?>"></i>
                             </a>
                         </th>
 
@@ -115,13 +113,13 @@
                         <th>
                             Name
                             <a
-                                href="{{ route('collectionlist', ['sort_by' => 'name', 'sort_order' => request('sort_order') === 'asc' && request('sort_by') === 'name' ? 'desc' : 'asc'] + request()->except('page')) }}">
+                                href="<?php echo e(route('collectionlist', ['sort_by' => 'name', 'sort_order' => request('sort_order') === 'asc' && request('sort_by') === 'name' ? 'desc' : 'asc'] + request()->except('page'))); ?>">
                                 <i
-                                    class="fa fa-sort{{ request('sort_by') === 'name' ? '-' . request('sort_order') : '' }}"></i>
+                                    class="fa fa-sort<?php echo e(request('sort_by') === 'name' ? '-' . request('sort_order') : ''); ?>"></i>
                             </a>
-                            @if(request('sort_by') === 'name')
-                                <i class="fa fa-sort-{{ request('sort_order') === 'asc' ? 'up' : 'down' }}"></i>
-                            @endif
+                            <?php if(request('sort_by') === 'name'): ?>
+                                <i class="fa fa-sort-<?php echo e(request('sort_order') === 'asc' ? 'up' : 'down'); ?>"></i>
+                            <?php endif; ?>
                             </a>
                         </th>
 
@@ -133,13 +131,13 @@
                         <th>
                             Amount
                             <a
-                                href="{{ route('collectionlist', ['sort_by' => 'amount', 'sort_order' => request('sort_order') === 'asc' && request('sort_by') === 'amount' ? 'desc' : 'asc'] + request()->except('page')) }}">
+                                href="<?php echo e(route('collectionlist', ['sort_by' => 'amount', 'sort_order' => request('sort_order') === 'asc' && request('sort_by') === 'amount' ? 'desc' : 'asc'] + request()->except('page'))); ?>">
                                 <i
-                                    class="fa fa-sort{{ request('sort_by') === 'amount' ? '-' . request('sort_order') : '' }}"></i>
+                                    class="fa fa-sort<?php echo e(request('sort_by') === 'amount' ? '-' . request('sort_order') : ''); ?>"></i>
                             </a>
-                            @if(request('sort_by') === 'amount')
-                                <i class="fa fa-sort-{{ request('sort_order') === 'asc' ? 'up' : 'down' }}"></i>
-                            @endif
+                            <?php if(request('sort_by') === 'amount'): ?>
+                                <i class="fa fa-sort-<?php echo e(request('sort_order') === 'asc' ? 'up' : 'down'); ?>"></i>
+                            <?php endif; ?>
                             </a>
                         </th>
 
@@ -147,41 +145,36 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($collections as $collection)
+                    <?php $__currentLoopData = $collections; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $collection): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            <td>{{ $collection->date }}</td>
-                            <td>{{ $collection->name }}</td>
-                            <td>{{ $collection->donationcategory }}</td>
-                            <td>{{ $collection->payment_mode }}</td>
-                            <td>{{ $collection->user->name ?? 'N/A' }}</td>
-                            <td>{{ $collection->amount }}</td>
+                            <td><?php echo e($loop->iteration); ?></td>
+                            <td><?php echo e($collection->date); ?></td>
+                            <td><?php echo e($collection->name); ?></td>
+                            <td><?php echo e($collection->donationcategory); ?></td>
+                            <td><?php echo e($collection->payment_mode); ?></td>
+                            <td><?php echo e($collection->user->name ?? 'N/A'); ?></td>
+                            <td><?php echo e($collection->amount); ?></td>
                             <td>
                                 <div class="d-flex justify-content-center flex-wrap gap-1">
                                     <a class="btn btn-info btn-sm d-flex align-items-center justify-content-center"
                                         style="width: 25px; height: 25px;"
-                                        href="{{ route('collection.show', $collection->id) }}">
+                                        href="<?php echo e(route('collection.show', $collection->id)); ?>">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('collection.edit', $collection->id) }}"
+                                    <a href="<?php echo e(route('collection.edit', $collection->id)); ?>"
                                         class="btn btn-primary btn-sm d-flex align-items-center justify-content-center"
                                         style="width: 25px; height: 25px;">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    {{-- <a class="btn btn-success btn-sm d-flex align-items-center justify-content-center"
-                                        style="width: 25px; height: 25px;"
-                                        onclick="openPDF('{{ route('collection.pdf', $collection->id) }}')"
-                                        href="javascript:void(0);">
-                                        <i class="fas fa-file"></i>
-                                    </a> --}}
+                                    
                                     <a class="btn btn-success btn-sm d-flex align-items-center justify-content-center"
                                         style="width: 25px; height: 25px;"
-                                        href="{{ route('collection.view', base64_encode($collection->id)) }}">
+                                        href="<?php echo e(route('collection.view', base64_encode($collection->id))); ?>">
                                         <i class="fas fa-file"></i>
                                     </a>
-                                    <form action="{{ route('collection.destroy', $collection->id) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
+                                    <form action="<?php echo e(route('collection.destroy', $collection->id)); ?>" method="POST">
+                                        <?php echo csrf_field(); ?>
+                                        <?php echo method_field('DELETE'); ?>
                                         <button type="submit"
                                             class="btn btn-danger btn-sm d-flex align-items-center justify-content-center"
                                             style="width: 25px; height: 25px;">
@@ -191,17 +184,18 @@
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </tbody>
             </table>
         </div>
 
         <!-- Pagination links -->
         <div class="d-flex justify-content-center mt-3">
-            {{ $collections->links() }}
+            <?php echo e($collections->links()); ?>
+
         </div>
     </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <script>
@@ -214,3 +208,4 @@
         }
     }
 </script>
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\laragon\www\sdi_jawhar\resources\views/ramzan/collectionlist.blade.php ENDPATH**/ ?>

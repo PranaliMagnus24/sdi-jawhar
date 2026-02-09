@@ -97,6 +97,7 @@
                     <option value="">Payment Method</option>
                     <option value="Cash" {{ old('payment_mode') == 'Cash' ? 'selected' : '' }}>Cash</option>
                     <option value="Online" {{ old('payment_mode') == 'Online' ? 'selected' : '' }}>Online</option>
+                    <option value="Unpaid" {{ old('payment_mode') == 'Unpaid' ? 'selected' : '' }}>Unpaid</option>
                 </select>
                 @error('payment_mode')
                     <span class="text-danger">{{ $message }}</span>
